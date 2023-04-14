@@ -12,6 +12,11 @@
 
 class TicTacToe
 
+  def initialize(player = 'x', table = Array.new(3) { Array.new(3) })
+    @player = player
+    @table = table
+  end
+
   def play_game
     intro
     mode = player_input(1)
@@ -19,22 +24,38 @@ class TicTacToe
   end
 
   def game(mode)
-    if mode = 1
+    if mode == '0'
       pvp_game
     end
+    puts "Sorry, mode not implemented yet."
   end
 
+
   def pvp_game
-    player = 'x'
+    puts '-------------------------------------'
+    display
     loop do
-      player = player == 'x' ? '0' : 'x'
+      puts "Player's #{@player}  turn"
+      puts "Select a position:"
+      x, y = player_input(2)
+      if @player == 'x'        
+        @table[x][y] = "\e[31m#{@player}\e[0m"
+      else
+        @table[x][y] = "\e[34m#{@player}\e[0m"
+      end
+      display()
+
+      @player = @player == 'x' ? "\u{25EF}" : 'x'
+      return if check_game
       
     end
-    check_game
   end
 
   def check_game
+    return true if @table.flatten.none? { |e| e.nil? }
 
+    
+    false
   end
 
   def verify_option(option)
@@ -47,7 +68,14 @@ class TicTacToe
       user_input = gets.chomp
       verified_option = verify_option(user_input)
       if verified_option
-        return verified_option if verified_option.size == size
+        if verified_option.size == size && size == 2          
+          position = verified_option.split("")
+          x = 2 - position[1].to_i
+          y = position[0].to_i 
+          return x, y if @table[x][y].nil?
+        elsif verified_option.size == size && size == 1
+          return verified_option
+        end
       end
 
       puts "Error, please select a valid option."
@@ -58,13 +86,13 @@ class TicTacToe
     puts <<~HEREDOC
       ### Tic Tac Toe ###
       Select a option:
-      1 - Player vs Player
-      2 - Player vs Computer
-      3 - Computer vs Computer
+      0 - Player vs Player
+      1 - Player vs Computer
+      2 - Computer vs Computer
     HEREDOC
   end
 
-  def display (table = Array.new(3) { Array.new(3) })
+  def display ()
     space = "\u{0020}"
     cross = "\u{253C}"
     v_line = "\u{2500}"
@@ -78,10 +106,10 @@ class TicTacToe
           if j == 3 || j == 7
             line += h_line
           elsif j == 1 || j == 5 || j == 9
-            if table[i/2][(j - 1) / 4].nil?
+            if @table[i/2][(j - 1) / 4].nil?
               line += space
             else
-              line += table[i/2][(j - 1) / 4]
+              line += @table[i/2][(j - 1) / 4]
             end
           else
             line += space
@@ -108,15 +136,5 @@ class TicTacToe
 end
 
 t = TicTacToe.new
-t.display
-
-table = Array.new(3) { Array.new(3)}
-table[0][0] = 'x'
-
-t.display(table)
-
-puts t.verify_option("41")
-puts t.verify_option("222")
-puts t.verify_option("22")
 
 t.play_game
